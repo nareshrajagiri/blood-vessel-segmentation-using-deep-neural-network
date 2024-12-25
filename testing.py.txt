@@ -1,0 +1,29 @@
+import cv2
+import numpy as np
+from tensorflow.keras.models import load_model
+from metrics import dice_loss, dice_coef, iou  # Assuming these are custom functions you've defined
+
+def preprocess_test_image(image_path):
+    # Read the image using OpenCV
+    x = cv2.imread(image_path, cv2.IMREAD_COLOR)
+    # Perform any necessary preprocessing steps, such as resizing and normalization
+    x = cv2.resize(x, (512, 512))  # Assuming your model input size is (512, 512)
+    x = x / 255.0  # Normalize pixel values to [0, 1]
+    x = x.astype(np.float32)  # Convert to float32
+    return np.expand_dims(x, axis=0)  # Add batch dimension
+
+# Load the model with custom loss and metrics
+model_path = "/content/drive/MyDrive/mini_project/files/model.h5"
+model = load_model(model_path, custom_objects={'dice_loss': dice_loss, 'dice_coef': dice_coef, 'iou': iou})
+
+# Define the path to the test image
+test_image_path = "/content/drive/MyDrive/mini_project/a_data/test/image/01_test.jpg"
+
+# Preprocess the test image
+test_image = preprocess_test_image(test_image_path)
+
+# Perform inference using the loaded model
+predictions = model.predict(test_image)
+
+# Assuming you want to print the predictions for inspection
+print("Predictions:", predictions)
